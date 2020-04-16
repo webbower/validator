@@ -12,6 +12,9 @@
     "test-one": "tape -r esm",
     "test-one:watch": "watch 'tape -r esm' src test"
   },
+  "dependencies": {
+    "lodash.iserror": "3.1.1"
+  },
   "devDependencies": {
     "eslint": "6.8.0",
     "eslint-plugin-import": "2.20.2",
