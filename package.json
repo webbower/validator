@@ -3,7 +3,13 @@
   "version": "0.1.0",
   "description": "Simple data validation with support for multiple validation error messages",
   "main": "index.js",
-  "author": "Matt Bower <matt@webbower.com>",
+  "author": "Matt Bower (http://webbower.com/)",
+  "homepage": "https://github.com/webbower/validator#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webbower/validator.git"
+  },
+  "bugs": "https://github.com/webbower/validator/issues",
   "license": "MIT",
   "scripts": {
     "start": "yarn run test:watch",
