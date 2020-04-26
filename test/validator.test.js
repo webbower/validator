@@ -1,6 +1,16 @@
 import test from 'tape';
 import Validator from '../src/validator';
 
+const getTypeof = v => {
+    if (Array.isArray(v)) {
+        return 'array';
+    } else if (v == null) {
+        return String(v);
+    } else {
+        return typeof v;
+    }
+};
+
 const isString = x => typeof x === 'string';
 const isNumber = x => typeof x === 'number';
 
@@ -19,6 +29,34 @@ test('Validator', t => {
             .assert;
         const expected = 'function';
         tt.strictEqual(actual, expected, 'should return a Validator object');
+
+        tt.end();
+    });
+
+    t.test('.assertWhen() sanity checks', tt => {
+        {
+            const actual = typeof Validator(1)
+                .assertWhen(true, isNumber, 'a number is expected')
+                .assert;
+            const expected = 'function';
+            tt.strictEqual(actual, expected, 'should return a Validator object when first arg is boolean');
+        }
+
+        {
+            const actual = typeof Validator(1)
+                .assertWhen(() => true, isNumber, 'a number is expected')
+                .assert;
+            const expected = 'function';
+            tt.strictEqual(actual, expected, 'should return a Validator object when first arg is function');
+        }
+
+        {
+            [undefined, null, 1, 'foo', Symbol('foo'), [], {}].forEach(invalid => {
+                const fn = () =>
+                    Validator(1).assertWhen(invalid, isNumber, 'a number is expected');
+                tt.throws(fn, TypeError, `should throw when first arg is ${getTypeof(invalid)}`);
+            })
+        }
 
         tt.end();
     });
@@ -177,6 +215,48 @@ test('Validator', t => {
                 expected,
                 'should return an array with a single Error when validation messages and Errors are present'
             );
+        }
+
+        tt.end();
+    });
+
+    t.test('Logic checks', tt => {
+        const isFooish = x => ['foobar', 'foobaz'].includes(x);
+
+        {
+            const actual = Validator('bar')
+                .assert(isString, 'a string is expected')
+                .assertWhen(v => v.startsWith('foo'), isFooish, 'a foo-ish value is expected when value starts with "foo"')
+                .hasFailures();
+            const expected = false;
+            tt.strictEqual(actual, expected, '.assertWhen(fn) skipped: should pass assertions');
+        }
+
+        {
+            const actual = Validator('foo')
+                .assert(isString, 'a string is expected')
+                .assertWhen(v => v.startsWith('foo'), isFooish, 'a foo-ish value is expected when value starts with "foo"')
+                .hasFailures();
+            const expected = true;
+            tt.strictEqual(actual, expected, '.assertWhen(fn) applied: should pass assertions');
+        }
+
+        {
+            const actual = Validator('foo')
+                .assert(isString, 'a string is expected')
+                .assertWhen(false, isFooish, 'a foo-ish value is expected when value starts with "foo"')
+                .hasFailures();
+            const expected = false;
+            tt.strictEqual(actual, expected, '.assertWhen(bool) skipped: should pass assertions');
+        }
+
+        {
+            const actual = Validator('foo')
+                .assert(isString, 'a string is expected')
+                .assertWhen(true, isFooish, 'a foo-ish value is expected when value starts with "foo"')
+                .hasFailures();
+            const expected = true;
+            tt.strictEqual(actual, expected, '.assertWhen(bool) applied: should pass assertions');
         }
 
         tt.end();

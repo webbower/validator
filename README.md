@@ -35,6 +35,52 @@ Validator(1).assert(isNumber, 'a number is expected'); // Passes. Failure messag
 Validator(1).assert(isString, 'a string is expected'); // Fails. Failure message is logged.
 ```
 
+### `.assertWhen(condition, predicate, failureMessage)`
+
+Perform a validation against the wrapped value when `condition` is `true`, logging the `failureMessage` if `predicate` fails. `condition` can be a boolean or a function that takes one argument. As a boolean, the assertion will be made if `condition` is `true`. As a function, `condition` receives the original value and the assertion will be made if the function returns `true`. If `condition` is `false` in either case, the assertion is skipped.
+
+This method allows for easier chaining of a full validation suite since `Validator` instances are immutable. Without this, if you had any assertions that should only be made sometimes, you'd have to rely on a mutable variable to apply the conditional assertion.
+
+```js
+const isFooish = x => ['foobar', 'foobaz'].includes(x);
+// Without .assertWhen()
+
+const value = 'foo';
+
+let validator = Validator(value).assert(isString, 'a string is expected');
+
+if (value.startsWith('foo')) {
+    validator = validator.assert(isFooish, 'a foo-ish value is expected when value starts with "foo"');
+}
+
+const isValid = !validator.hasFailures();
+
+// With .assertWhen()
+
+const isValid = Validator('foo')
+    .assert(isString, 'a string is expected')
+    .assertWhen(v => v.startsWith('foo'), isFooish, 'a foo-ish value is expected when value starts with "foo"')
+    .hasFailures();
+```
+
+```js
+assertWhen: ((Boolean | a -> Boolean), a -> Boolean, String) => Validator<a>
+
+// The value from the username field of a login form that can accept a username or email address
+Validator(username)
+    .assert(isString, 'a string is expected')
+    // Only validate the usernames's domain if an email address is submitted
+    .assertWhen(x => x.includes('@'), isDomainEmail('mydomain.com'), 'an email username must be in mydomain.com')
+    .hasFailures();
+
+// A form only requires a field when a checkbox is checked
+Validator(conditionalField.value)
+    .assert(isString, 'a string is expected')
+    // Only validate the optional field when the checkbox is checked
+    .assertWhen(checkboxField.checked, isValidFormat, 'a specific format is expected')
+    .hasFailures();
+```
+
 ### `.hasFailures()`
 
 Check whether any assertions called have resulted in any failures. Returns `true` if any assertions failed or if any assertions threw JS Errors, or `false` if none did.

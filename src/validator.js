@@ -53,6 +53,21 @@ const Validator = (x, errs = []) => {
                 return Validator(x, errs.concat(new ValidationError(errorMsg, e)));
             }
         },
+        assertWhen(condition, test, errorMsg) {
+            let passed = false;
+            switch (typeof condition) {
+                case 'function':
+                    passed = condition(x);
+                    break;
+                case 'boolean':
+                    passed = condition;
+                    break;
+                default:
+                    throw new TypeError(`Validator.assertWhen() expects first argument to be boolean or funciton. ${typeof condition} given.`);
+            }
+
+            return passed ? this.assert(test, errorMsg) : self();
+        },
         hasFailures() {
             return errs.length > 0;
         },
