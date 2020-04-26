@@ -5,7 +5,7 @@ const isString = x => typeof x === 'string';
 const isNumber = x => typeof x === 'number';
 
 test('Validator', t => {
-    t.test('factory', tt => {
+    t.test('Validator() sanity checks', tt => {
         const actual = typeof Validator(1);
         const expected = 'object';
         tt.strictEqual(actual, expected, 'should return a Validator object');
@@ -13,7 +13,7 @@ test('Validator', t => {
         tt.end();
     });
 
-    t.test('.assert()', tt => {
+    t.test('.assert() sanity checks', tt => {
         const actual = typeof Validator(1)
             .assert(isNumber, 'a number is expected')
             .assert;

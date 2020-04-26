@@ -43,30 +43,35 @@ if (Object.setPrototypeOf) {
 }
 
 // The star of the show
-const Validator = (x, errs = []) => ({
-    assert(test, errorMsg) {
-        try {
-            return test(x) ? Validator(x, errs) : Validator(x, errs.concat(errorMsg));
-        } catch (e) {
-            return Validator(x, errs.concat(new ValidationError(errorMsg, e)));
-        }
-    },
-    hasFailures() {
-        return errs.length > 0;
-    },
-    getFailuresAndErrors() {
-        return errs.slice();
-    },
-    getFailures() {
-        return errs.map(failure => isError(failure) ? failure.message : failure);
-    },
-    getErrors() {
-        return errs.filter(isError);
-    },
-    toString() {
-        return `Validator(${JSON.stringify(x)}, [${stringifyFailures(errs)}])`;
-    },
-});
+const Validator = (x, errs = []) => {
+    const self = () => Validator(x, errs);
+    return {
+        assert(test, errorMsg) {
+            try {
+                return test(x) ? self() : Validator(x, errs.concat(errorMsg));
+            } catch (e) {
+                return Validator(x, errs.concat(new ValidationError(errorMsg, e)));
+            }
+        },
+        hasFailures() {
+            return errs.length > 0;
+        },
+        getFailuresAndErrors() {
+            return errs.slice();
+        },
+        getFailures() {
+            return errs.map(failure => isError(failure) ? failure.message : failure);
+        },
+        getErrors() {
+            return errs.filter(isError);
+        },
+        toString() {
+            return `Validator(${JSON.stringify(x)}, [${stringifyFailures(errs)}])`;
+        },
+    };
+};
+
+const V = x => Validator(x);
 
 // Export a wrapper that only exposes the unary signature public API
-export default x => Validator(x);
+export default V;
