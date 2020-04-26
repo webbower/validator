@@ -23,6 +23,14 @@ test('Validator', t => {
         tt.end();
     });
 
+    t.test('Validator.optional() sanity checks', tt => {
+        const actual = typeof Validator.optional(null);
+        const expected = 'object';
+        tt.strictEqual(actual, expected, 'should return a Validator object');
+
+        tt.end();
+    });
+
     t.test('.assert() sanity checks', tt => {
         const actual = typeof Validator(1)
             .assert(isNumber, 'a number is expected')
@@ -257,6 +265,46 @@ test('Validator', t => {
                 .hasFailures();
             const expected = true;
             tt.strictEqual(actual, expected, '.assertWhen(bool) applied: should pass assertions');
+        }
+
+        {
+            const actual = Validator.optional(null)
+                .assert(isString, 'a string is expected')
+                .hasFailures();
+            const expected = false;
+            tt.strictEqual(actual, expected, '.optional(null).assert(fail): should pass assertions');
+        }
+
+        {
+            const actual = Validator.optional(undefined)
+                .assert(isString, 'a string is expected')
+                .hasFailures();
+            const expected = false;
+            tt.strictEqual(actual, expected, '.optional(undefined).assert(fail): should pass assertions');
+        }
+
+        {
+            const actual = Validator.optional(1)
+                .assert(isString, 'a string is expected')
+                .hasFailures();
+            const expected = true;
+            tt.strictEqual(actual, expected, '.optional(number).assert(fail): should fail assertions');
+        }
+
+        {
+            const actual = Validator.optional(null)
+                .assertWhen(false, isString, 'a string is expected')
+                .hasFailures();
+            const expected = false;
+            tt.strictEqual(actual, expected, '.optional(null).assertWhen(skip, fail): should pass assertions');
+        }
+
+        {
+            const actual = Validator.optional(1)
+                .assertWhen(true, isString, 'a string is expected')
+                .hasFailures();
+            const expected = true;
+            tt.strictEqual(actual, expected, '.optional(number).assertWhen(apply, fail): should fail assertions');
         }
 
         tt.end();

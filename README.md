@@ -162,13 +162,29 @@ Validator(1)
     .toString(); // Validator(1, ['a string is expected', ValidationError('a valid email is required')])
 ```
 
+### `Validator.optional(value)`
+
+Initialize a `Validator` that will pass if the value is `null` or `undefined` ("nil" going forward). All above methods will be available, but any `.assert()` calls will always pass if the value is nil. This means that `.hasFailures()` will always return `false` for a nil value and `.getFailuresAndErrors()`, `.getFailures()`, and `.getErrors()` will always return empty arrays for a nil value.
+
+```js
+Validator.optional: a -> Validator<a>
+
+Validator.optional(null)
+    .assert(isString, 'a string is expected') // Pass. Value is nil
+    .assert(isEmailFormat, 'a valid email is expected') // Pass. Value is nil
+    .hasFailures(); // false
+Validator.optional('foo')
+    .assert(isString, 'a string is expected') // Pass. Value is non-nil and is a string
+    .assert(isEmailFormat, 'a valid email is expected') // Fail. Value is non-nil and not an email format
+    .hasFailures(); // true
+```
+
 ### `ValidationError`
 
 A custom `Error` type used internally in this utility. There may be times where some bad data is passed into your validator which results in a validation function throwing an error. We don't want to lose the failure message, but we also want to know that an `Error` was thrown so that potential bugs can be fixed. In cases like this, the failure message will be wrapped in a `ValidationError` where the `message` property is set to the failure message provided to `.assert()` and the `originalError` property holds the thrown `Error`. You can then use `.getFailures()` to retrieve all the failure messages to display and `.getErrors()` to retrieve any thrown `Error`s to be logged in your logging system.
 
 ## Roadmap
 
-- Optional data where `null` or `undefined` would pass all assertions.
 - Make it so `ValidationError` doesn't require any ES6 polyfills (`Object.setPrototypeOf()`).
 - Support Node.js environment.
 - Validating a whole `<form>`.

@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ## [Unreleased]
 ### Added
 - `.assertWhen(condition, test, failureMessage)` to only run an assertion conditionally.
+- `Validator.optional()` to create a `Validator` that will pass all assertions for nil (`null` or `undefined`) values.
 
 ## [0.1.0] - 2020-04-16
 ### Added

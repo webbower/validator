@@ -43,10 +43,16 @@ if (Object.setPrototypeOf) {
 }
 
 // The star of the show
-const Validator = (x, errs = []) => {
-    const self = () => Validator(x, errs);
+const Validator = (x, errs = [], options = {}) => {
+    const { optional = false } = options;
+    const self = () => Validator(x, errs, options);
+
     return {
         assert(test, errorMsg) {
+            if (optional && x == null) {
+                return self();
+            }
+
             try {
                 return test(x) ? self() : Validator(x, errs.concat(errorMsg));
             } catch (e) {
@@ -87,6 +93,8 @@ const Validator = (x, errs = []) => {
 };
 
 const V = x => Validator(x);
+
+V.optional = x => Validator(x, undefined, { optional: true });
 
 // Export a wrapper that only exposes the unary signature public API
 export default V;
