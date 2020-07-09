@@ -1,7 +1,7 @@
 import { describe, Try } from 'riteway';
 import Validator from '../src/validator';
 
-const getTypeof = (v) => {
+const getTypeof = v => {
   if (Array.isArray(v)) {
     return 'array';
   } else if (v == null) {
@@ -11,7 +11,7 @@ const getTypeof = (v) => {
   }
 };
 
-const convertFailuresAndErrorsForTesting = (failure) => {
+const convertFailuresAndErrorsForTesting = failure => {
   if (failure instanceof Error) {
     // TODO For some reason, the custom ValidationError fields aren't coming through like `originalError`
     return failure.name;
@@ -20,11 +20,11 @@ const convertFailuresAndErrorsForTesting = (failure) => {
   }
 };
 
-const isString = (x) => typeof x === 'string';
-const isNumber = (x) => typeof x === 'number';
-const isFooish = (x) => ['foobar', 'foobaz'].includes(x);
+const isString = x => typeof x === 'string';
+const isNumber = x => typeof x === 'number';
+const isFooish = x => ['foobar', 'foobaz'].includes(x);
 
-describe('Validator()', async (assert) => {
+describe('Validator()', async assert => {
   assert({
     given: 'a value to validate',
     should: 'return a Validator object',
@@ -33,7 +33,7 @@ describe('Validator()', async (assert) => {
   });
 });
 
-describe('Validator.optional()', async (assert) => {
+describe('Validator.optional()', async assert => {
   assert({
     given: 'null',
     should: 'return a Validator object',
@@ -42,7 +42,7 @@ describe('Validator.optional()', async (assert) => {
   });
 });
 
-describe('Validator#assert()', async (assert) => {
+describe('Validator#assert()', async assert => {
   assert({
     given: 'an assertion',
     should: 'return a Validator object',
@@ -51,7 +51,7 @@ describe('Validator#assert()', async (assert) => {
   });
 });
 
-describe('Validator#assertWhen()', async (assert) => {
+describe('Validator#assertWhen()', async assert => {
   assert({
     given: 'an assertion to always apply signaled by a boolean literal',
     should: 'return a Validator object',
@@ -62,11 +62,11 @@ describe('Validator#assertWhen()', async (assert) => {
   assert({
     given: 'an assertion to always run signaled by a function',
     should: 'return a Validator object',
-    actual: typeof Validator(1).assertWhen((x) => x === 1, isNumber, 'a number is expected').assert,
+    actual: typeof Validator(1).assertWhen(x => x === 1, isNumber, 'a number is expected').assert,
     expected: 'function',
   });
 
-  [undefined, null, 1, 'foo', Symbol('foo'), [], {}].forEach((invalid) => {
+  [undefined, null, 1, 'foo', Symbol('foo'), [], {}].forEach(invalid => {
     assert({
       given: `an invalid data type for first argument (${getTypeof(invalid)})`,
       should: 'throw',
@@ -76,7 +76,7 @@ describe('Validator#assertWhen()', async (assert) => {
   });
 });
 
-describe('Validator#hasFailures()', async (assert) => {
+describe('Validator#hasFailures()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',
     should: 'return false',
@@ -95,13 +95,13 @@ describe('Validator#hasFailures()', async (assert) => {
     given: 'a Validator where an assertion threw an error',
     should: 'retrun true',
     actual: Validator(1)
-      .assert((x) => x.match(/\d+/ !== null), 'a number is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a number is expected')
       .hasFailures(),
     expected: true,
   });
 });
 
-describe('Validator#getFailuresAndErrors()', async (assert) => {
+describe('Validator#getFailuresAndErrors()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',
     should: 'return an empty array',
@@ -120,7 +120,7 @@ describe('Validator#getFailuresAndErrors()', async (assert) => {
     given: 'a Validator where an assertion threw an error',
     should: 'return an array with the error as an entry',
     actual: Validator(1)
-      .assert((x) => x.match(/\d+/ !== null), 'a numeric string is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a numeric string is expected')
       .getFailuresAndErrors()
       .map(convertFailuresAndErrorsForTesting),
     expected: ['ValidationError'],
@@ -131,14 +131,14 @@ describe('Validator#getFailuresAndErrors()', async (assert) => {
     should: 'return an array with failures messages and thrown errors',
     actual: Validator(1)
       .assert(isString, 'a string is expected')
-      .assert((x) => x.match(/\d+/ !== null), 'a numeric string is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a numeric string is expected')
       .getFailuresAndErrors()
       .map(convertFailuresAndErrorsForTesting),
     expected: ['a string is expected', 'ValidationError'],
   });
 });
 
-describe('Validator#getFailures()', async (assert) => {
+describe('Validator#getFailures()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',
     should: 'return an empty array',
@@ -157,7 +157,7 @@ describe('Validator#getFailures()', async (assert) => {
     given: 'a Validator with only assertions that threw',
     should: 'return an array with the failure messages from the throwing assertions',
     actual: Validator(1)
-      .assert((x) => x.match(/\d+/ !== null), 'a numeric string is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a numeric string is expected')
       .getFailures(),
     expected: ['a numeric string is expected'],
   });
@@ -167,13 +167,13 @@ describe('Validator#getFailures()', async (assert) => {
     should: 'return an array with failure messages from failing and throwing assertions',
     actual: Validator(1)
       .assert(isString, 'a string is expected')
-      .assert((x) => x.match(/\d+/ !== null), 'a numeric string is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a numeric string is expected')
       .getFailures(),
     expected: ['a string is expected', 'a numeric string is expected'],
   });
 });
 
-describe('Validator#getErrors()', async (assert) => {
+describe('Validator#getErrors()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',
     should: 'return an empty array',
@@ -192,7 +192,7 @@ describe('Validator#getErrors()', async (assert) => {
     given: 'a Validator with throwing assertions',
     should: 'return an array the thrown errors',
     actual: Validator(1)
-      .assert((x) => x.match(/\d+/ !== null), 'a numeric string is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a numeric string is expected')
       .getErrors()
       .map(convertFailuresAndErrorsForTesting),
     expected: ['ValidationError'],
@@ -203,21 +203,21 @@ describe('Validator#getErrors()', async (assert) => {
     should: 'return an array with only the thrown errors',
     actual: Validator(1)
       .assert(isString, 'a string is expected')
-      .assert((x) => x.match(/\d+/ !== null), 'a numeric string is expected')
+      .assert(x => x.match(/\d+/ !== null), 'a numeric string is expected')
       .getErrors()
       .map(convertFailuresAndErrorsForTesting),
     expected: ['ValidationError'],
   });
 });
 
-describe('Validator assertion tests', async (assert) => {
+describe('Validator assertion tests', async assert => {
   assert({
     given: 'a passing assertion and a skipped conditional assertion',
     should: 'pass',
     actual: Validator('bar')
       .assert(isString, 'a string is expected')
       .assertWhen(
-        (v) => v.startsWith('foo'),
+        v => v.startsWith('foo'),
         isFooish,
         'a foo-ish value is expected when value starts with "foo"'
       )
@@ -231,7 +231,7 @@ describe('Validator assertion tests', async (assert) => {
     actual: Validator('foo')
       .assert(isString, 'a string is expected')
       .assertWhen(
-        (v) => v.startsWith('foo'),
+        v => v.startsWith('foo'),
         isFooish,
         'a foo-ish value is expected when value starts with "foo"'
       )

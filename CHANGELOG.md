@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ### Added
 - `.assertWhen(condition, test, failureMessage)` to only run an assertion conditionally.
 - `Validator.optional()` to create a `Validator` that will pass all assertions for nil (`null` or `undefined`) values.
+- Prettier with ESLint integration and reformatted files
 
 ### Changed
 - Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`
