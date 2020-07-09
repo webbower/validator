@@ -1,1 +1,3 @@
-export { default } from './src/validator';
+// eslint-disable-next-line no-global-assign
+require = require('esm')(module);
+module.exports = require('./src/validator.js').default;

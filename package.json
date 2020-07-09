@@ -1,8 +1,9 @@
 {
   "name": "validator",
   "version": "0.1.0",
-  "description": "Simple data validation with support for multiple validation error messages",
+  "description": "Simple data validation with support for aggregating multiple validation failure messages",
   "main": "index.js",
+  "module": "src/validator.js",
   "author": "Matt Bower (http://webbower.com/)",
   "homepage": "https://github.com/webbower/validator#readme",
   "repository": {
