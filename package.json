@@ -12,21 +12,20 @@
   "bugs": "https://github.com/webbower/validator/issues",
   "license": "MIT",
   "scripts": {
-    "start": "yarn run test:watch",
-    "test": "tape -r esm test/**/*.test.js | tap-color",
-    "test:watch": "watch 'yarn run test' src test",
-    "test-one": "tape -r esm",
-    "test-one:watch": "watch 'tape -r esm' src test"
+    "dev": "chokidar src test -c \"clear && yarn run -s test:dev\" --initial --silent",
+    "test": "NODE_ENV=test riteway -r esm test/**/*.test.js",
+    "test:dev": "yarn run test | tap-color && echo 'Test pass.'"
   },
   "dependencies": {
     "lodash.iserror": "3.1.1"
   },
   "devDependencies": {
+    "chokidar": "3.4.0",
+    "chokidar-cli": "2.1.0",
     "eslint": "6.8.0",
     "eslint-plugin-import": "2.20.2",
     "esm": "3.2.25",
-    "tap-color": "1.2.0",
-    "tape": "4.13.2",
-    "watch": "1.0.2"
+    "riteway": "6.1.2",
+    "tap-color": "1.2.0"
   }
 }
