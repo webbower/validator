@@ -96,6 +96,21 @@ Validator(1)
     .hasFailures(); // true
 ```
 
+### `.hasErrors()`
+
+Check whether any assertions have thrown errors. Returns `true` if any assertions threw Errors, or `false` if none did. Useful for checking for bugs in assertions and reporting them to your logging system in conjunction with `.getErrors()`.
+
+```js
+hasErrors: () => Boolean
+
+Validator(1)
+    .assert(isString, 'a string is expected')
+    .hasErrors(); // false: assertion failed but no error was thrown
+Validator(1)
+    .assert(x => x.match(/foo/g), 'foo is expected')
+    .hasErrors(); // true: numbers don't have a `.match()` method
+```
+
 ### `.getFailuresAndErrors()`
 
 Return an array of all failure messages and thrown JS Errors from called assertions.

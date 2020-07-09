@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 - `Validator.optional()` to create a `Validator` that will pass all assertions for nil (`null` or `undefined`) values.
 - Prettier with ESLint integration and reformatted files
 - Enable CJS and ESM support
+- `.hasErrors()` method to check for assertions that threw errors
 
 ### Changed
 - Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`

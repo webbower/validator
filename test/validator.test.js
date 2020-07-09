@@ -101,6 +101,31 @@ describe('Validator#hasFailures()', async assert => {
   });
 });
 
+describe('Validator#hasErrors()', async assert => {
+  assert({
+    given: 'a Validator with all passing assertions',
+    should: 'return false',
+    actual: Validator(1).assert(isNumber, 'a number is exptect').hasErrors(),
+    expected: false,
+  });
+
+  assert({
+    given: 'a Validator with at least one failing assertion',
+    should: 'return true',
+    actual: Validator('1').assert(isNumber, 'a number is exptect').hasErrors(),
+    expected: false,
+  });
+
+  assert({
+    given: 'a Validator where an assertion threw an error',
+    should: 'retrun true',
+    actual: Validator(1)
+      .assert(x => x.match(/\d+/ !== null), 'a number is expected')
+      .hasErrors(),
+    expected: true,
+  });
+});
+
 describe('Validator#getFailuresAndErrors()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',

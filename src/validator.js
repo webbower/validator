@@ -79,6 +79,9 @@ const Validator = (x, errs = [], options = {}) => {
     hasFailures() {
       return errs.length > 0;
     },
+    hasErrors() {
+      return errs.filter(isError).length > 0;
+    },
     getFailuresAndErrors() {
       return errs.slice();
     },
