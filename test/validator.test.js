@@ -26,6 +26,13 @@ const isFooish = x => ['foobar', 'foobaz'].includes(x);
 
 describe('Validator()', async assert => {
   assert({
+    given: 'the public API function',
+    should: 'be have the correct function name',
+    actual: Validator.name,
+    expected: 'Validator',
+  });
+
+  assert({
     given: 'a value to validate',
     should: 'return a Validator object',
     actual: typeof Validator(1).assert,
@@ -33,11 +40,18 @@ describe('Validator()', async assert => {
   });
 });
 
-describe('Validator.optional()', async assert => {
+describe('Validator.Optional()', async assert => {
+  assert({
+    given: 'the public API function',
+    should: 'be have the correct function name',
+    actual: Validator.Optional.name,
+    expected: 'Validator.Optional',
+  });
+
   assert({
     given: 'null',
     should: 'return a Validator object',
-    actual: typeof Validator.optional(null).assert,
+    actual: typeof Validator.Optional(null).assert,
     expected: 'function',
   });
 });
@@ -287,28 +301,28 @@ describe('Validator assertion tests', async assert => {
   assert({
     given: 'an optional Validator with a null value and a failing assertion',
     should: 'pass',
-    actual: Validator.optional(null).assert(isString, 'a string is expected').hasFailures(),
+    actual: Validator.Optional(null).assert(isString, 'a string is expected').hasFailures(),
     expected: false,
   });
 
   assert({
     given: 'an optional Validator with an undefined value and a failing assertion',
     should: 'pass',
-    actual: Validator.optional(undefined).assert(isString, 'a string is expected').hasFailures(),
+    actual: Validator.Optional(undefined).assert(isString, 'a string is expected').hasFailures(),
     expected: false,
   });
 
   assert({
     given: 'an optional Validator with a value and a failing assertion',
     should: 'fail',
-    actual: Validator.optional(1).assert(isString, 'a string is expected').hasFailures(),
+    actual: Validator.Optional(1).assert(isString, 'a string is expected').hasFailures(),
     expected: true,
   });
 
   assert({
     given: 'an optional Validator with null and a skipped failing assertion',
     should: 'pass',
-    actual: Validator.optional(null)
+    actual: Validator.Optional(null)
       .assertWhen(false, isString, 'a string is expected')
       .hasFailures(),
     expected: false,
@@ -317,7 +331,7 @@ describe('Validator assertion tests', async assert => {
   assert({
     given: 'an optional Validator with a value and an applied failing conditional assertion',
     should: 'fail',
-    actual: Validator.optional(1).assertWhen(true, isString, 'a string is expected').hasFailures(),
+    actual: Validator.Optional(1).assertWhen(true, isString, 'a string is expected').hasFailures(),
     expected: true,
   });
 });

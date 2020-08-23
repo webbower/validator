@@ -6,6 +6,8 @@ const stringifyFailures = (errors = []) =>
     .map(e => (e instanceof Error ? `${e.name}(${JSON.stringify(e.message)})` : JSON.stringify(e)))
     .join(', ');
 
+const nameFn = (name, fn) => Object.defineProperty(fn, 'name', { value: name });
+
 /**
  * ValidationError - a custom Error type
  *
@@ -46,10 +48,10 @@ if (Object.setPrototypeOf) {
   ValidationError.__proto__ = Error;
 }
 
-// The star of the show
-const Validator = (x, errs = [], options = {}) => {
+// Private internal implementation
+const ValidatorInternal = (x, errs = [], options = {}) => {
   const { optional = false } = options;
-  const self = () => Validator(x, errs, options);
+  const self = () => ValidatorInternal(x, errs, options);
 
   return {
     assert(test, errorMsg) {
@@ -58,9 +60,9 @@ const Validator = (x, errs = [], options = {}) => {
       }
 
       try {
-        return test(x) ? self() : Validator(x, errs.concat(errorMsg));
+        return test(x) ? self() : ValidatorInternal(x, errs.concat(errorMsg));
       } catch (e) {
-        return Validator(x, errs.concat(new ValidationError(errorMsg, e)));
+        return ValidatorInternal(x, errs.concat(new ValidationError(errorMsg, e)));
       }
     },
     assertWhen(condition, test, errorMsg) {
@@ -101,9 +103,12 @@ const Validator = (x, errs = [], options = {}) => {
   };
 };
 
-const V = x => Validator(x);
+// Public API
+const Validator = x => ValidatorInternal(x);
 
-V.optional = x => Validator(x, undefined, { optional: true });
+Validator.Optional = nameFn('Validator.Optional', x =>
+  ValidatorInternal(x, undefined, { optional: true })
+);
 
 // Export a wrapper that only exposes the unary signature public API
-export default V;
+export default Validator;

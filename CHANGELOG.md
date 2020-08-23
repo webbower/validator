@@ -5,14 +5,15 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ## [Unreleased]
 ### Added
-- `.assertWhen(condition, test, failureMessage)` to only run an assertion conditionally.
-- `Validator.optional()` to create a `Validator` that will pass all assertions for nil (`null` or `undefined`) values.
-- Prettier with ESLint integration and reformatted files
-- Enable CJS and ESM support
-- `.hasErrors()` method to check for assertions that threw errors
+- `Validator#assertWhen(condition, test, failureMessage)` to only run an assertion conditionally.
+- `Validator.Optional()` to create a `Validator` that will pass all assertions for nil (`null` or `undefined`) values.
+- Prettier with ESLint integration and reformatted files.
+- Enable CJS and ESM support.
+- `Validator#hasErrors()` method to check for assertions that threw errors.
 
 ### Changed
-- Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`
+- Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`.
+- Changed naming of private and public APIs for better debugging and stack trace reporting.
 
 ## [0.1.0] - 2020-04-16
 ### Added

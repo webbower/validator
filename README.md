@@ -177,18 +177,18 @@ Validator(1)
     .toString(); // Validator(1, ['a string is expected', ValidationError('a valid email is required')])
 ```
 
-### `Validator.optional(value)`
+### `Validator.Optional(value)`
 
 Initialize a `Validator` that will pass if the value is `null` or `undefined` ("nil" going forward). All above methods will be available, but any `.assert()` calls will always pass if the value is nil. This means that `.hasFailures()` will always return `false` for a nil value and `.getFailuresAndErrors()`, `.getFailures()`, and `.getErrors()` will always return empty arrays for a nil value.
 
 ```js
-Validator.optional: a -> Validator<a>
+Validator.Optional: a -> Validator<a>
 
-Validator.optional(null)
+Validator.Optional(null)
     .assert(isString, 'a string is expected') // Pass. Value is nil
     .assert(isEmailFormat, 'a valid email is expected') // Pass. Value is nil
     .hasFailures(); // false
-Validator.optional('foo')
+Validator.Optional('foo')
     .assert(isString, 'a string is expected') // Pass. Value is non-nil and is a string
     .assert(isEmailFormat, 'a valid email is expected') // Fail. Value is non-nil and not an email format
     .hasFailures(); // true
