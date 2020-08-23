@@ -1,5 +1,7 @@
 import isError from 'lodash.iserror';
 
+const instanceSymbol = Symbol('ValidatorInstance');
+
 // Private utilities
 const stringifyFailures = (errors = []) =>
   errors
@@ -100,6 +102,7 @@ const ValidatorInternal = (x, errs = [], options = {}) => {
     toString() {
       return `Validator(${JSON.stringify(x)}, [${stringifyFailures(errs)}])`;
     },
+    [instanceSymbol]: true,
   };
 };
 
@@ -109,6 +112,8 @@ const Validator = x => ValidatorInternal(x);
 Validator.Optional = nameFn('Validator.Optional', x =>
   ValidatorInternal(x, undefined, { optional: true })
 );
+
+Validator.isValidator = nameFn('isValidator', x => x != null && x[instanceSymbol] === true);
 
 // Export a wrapper that only exposes the unary signature public API
 export default Validator;

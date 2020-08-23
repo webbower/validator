@@ -8,9 +8,7 @@ The API for this utility was inspired by some functional programming (FP) concep
 
 ## Support
 
-`Validator` is written using only native ES5 functions except for `Object.setPrototypeOf()` which is available in IE11. If you need to support older than IE11, you'll need to polyfill `Object.setPrototypeOf()`. Additionally, ES6 syntax capabilities are used which requires transpilation for use in older browsers.
-
-Node.js is not currently supported but it is planned.
+`Validator` requires ES6 syntax transpilation and polyfills for `Symbol()` and `Object.setPrototypeOf()` if you need to support IE11. Proper IE11 support and Node.js support is planned.
 
 ## API
 
@@ -194,6 +192,18 @@ Validator.Optional('foo')
     .hasFailures(); // true
 ```
 
+### `Validator.isValidator(value)`
+
+Test whether a value is an instance of `Validator`.
+
+```js
+Validator.isValidator: a -> Boolean
+
+Validator.isValidator(Validator(1)); // true
+Validator.isValidator(Validator.Optional(1)); // true
+Validator.isValidator(Validator(1).assert(isString)); // true
+```
+
 ### `ValidationError`
 
 A custom `Error` type used internally in this utility. There may be times where some bad data is passed into your validator which results in a validation function throwing an error. We don't want to lose the failure message, but we also want to know that an `Error` was thrown so that potential bugs can be fixed. In cases like this, the failure message will be wrapped in a `ValidationError` where the `message` property is set to the failure message provided to `.assert()` and the `originalError` property holds the thrown `Error`. You can then use `.getFailures()` to retrieve all the failure messages to display and `.getErrors()` to retrieve any thrown `Error`s to be logged in your logging system.
@@ -202,6 +212,7 @@ A custom `Error` type used internally in this utility. There may be times where 
 
 - Make it so `ValidationError` doesn't require any ES6 polyfills (`Object.setPrototypeOf()`).
 - Support Node.js environment.
+- Support IE11.
 - Validating a whole `<form>` (separate package with this as a dependency).
 - Validate top level keys of an object (separate package with this as a dependency).
 - Assertion bundles: reusable validation function + failure message bundle.

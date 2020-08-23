@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 - Prettier with ESLint integration and reformatted files.
 - Enable CJS and ESM support.
 - `Validator#hasErrors()` method to check for assertions that threw errors.
+- `Validator.isValidator()` static function to test if an instance is a `Validator` with tests.
 
 ### Changed
 - Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`.

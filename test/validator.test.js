@@ -56,6 +56,45 @@ describe('Validator.Optional()', async assert => {
   });
 });
 
+describe('Validator.isValidator()', async assert => {
+  assert({
+    given: 'a Validator object',
+    should: 'return true',
+    actual: Validator.isValidator(Validator(1)),
+    expected: true,
+  });
+
+  assert({
+    given: 'an optional Validator object',
+    should: 'return true',
+    actual: Validator.isValidator(Validator.Optional(1)),
+    expected: true,
+  });
+
+  assert({
+    given: 'a Validator object after an assertion',
+    should: 'return true',
+    actual: Validator.isValidator(Validator(1).assert(isString, 'a string is expected')),
+    expected: true,
+  });
+
+  assert({
+    given: 'an optional Validator object after an assertion',
+    should: 'return true',
+    actual: Validator.isValidator(Validator.Optional(1).assert(isString, 'a string is expected')),
+    expected: true,
+  });
+
+  [undefined, null, 1, 'foo', Symbol('foo'), [], {}, () => {}].forEach(invalid => {
+    assert({
+      given: `an non-Validator value (${getTypeof(invalid)})`,
+      should: 'return false',
+      actual: Validator.isValidator(invalid),
+      expected: false,
+    });
+  });
+});
+
 describe('Validator#assert()', async assert => {
   assert({
     given: 'an assertion',
