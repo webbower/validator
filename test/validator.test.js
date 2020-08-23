@@ -13,7 +13,7 @@ const getTypeof = v => {
 
 const convertFailuresAndErrorsForTesting = failure => {
   if (failure instanceof Error) {
-    // TODO For some reason, the custom ValidationError fields aren't coming through like `originalError`
+    // FIXME For some reason, the custom ValidationError fields aren't coming through like `originalError`
     return failure.name;
   } else {
     return failure;
@@ -80,20 +80,20 @@ describe('Validator#hasFailures()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',
     should: 'return false',
-    actual: Validator(1).assert(isNumber, 'a number is exptect').hasFailures(),
+    actual: Validator(1).assert(isNumber, 'a number is expected').hasFailures(),
     expected: false,
   });
 
   assert({
     given: 'a Validator with at least one failing assertion',
     should: 'return true',
-    actual: Validator('1').assert(isNumber, 'a number is exptect').hasFailures(),
+    actual: Validator('1').assert(isNumber, 'a number is expected').hasFailures(),
     expected: true,
   });
 
   assert({
     given: 'a Validator where an assertion threw an error',
-    should: 'retrun true',
+    should: 'return true',
     actual: Validator(1)
       .assert(x => x.match(/\d+/ !== null), 'a number is expected')
       .hasFailures(),
@@ -105,20 +105,20 @@ describe('Validator#hasErrors()', async assert => {
   assert({
     given: 'a Validator with all passing assertions',
     should: 'return false',
-    actual: Validator(1).assert(isNumber, 'a number is exptect').hasErrors(),
+    actual: Validator(1).assert(isNumber, 'a number is expected').hasErrors(),
     expected: false,
   });
 
   assert({
     given: 'a Validator with at least one failing assertion',
     should: 'return true',
-    actual: Validator('1').assert(isNumber, 'a number is exptect').hasErrors(),
+    actual: Validator('1').assert(isNumber, 'a number is expected').hasErrors(),
     expected: false,
   });
 
   assert({
     given: 'a Validator where an assertion threw an error',
-    should: 'retrun true',
+    should: 'return true',
     actual: Validator(1)
       .assert(x => x.match(/\d+/ !== null), 'a number is expected')
       .hasErrors(),
@@ -306,7 +306,7 @@ describe('Validator assertion tests', async assert => {
   });
 
   assert({
-    given: 'an optiona Validator with null and a skipped failing assertion',
+    given: 'an optional Validator with null and a skipped failing assertion',
     should: 'pass',
     actual: Validator.optional(null)
       .assertWhen(false, isString, 'a string is expected')

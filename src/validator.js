@@ -7,13 +7,17 @@ const stringifyFailures = (errors = []) =>
     .join(', ');
 
 /**
- * 
- * @param {String} message The validation failure message
- * @param {Error} originalError The thrown error from the predicate function
- * 
+ * ValidationError - a custom Error type
+ *
  * The ValidationError signifies that a validation function threw an Error internally and captures
  * that thrown error in addition to logging the validation failure message for use in displaying.
  * The thrown Error can be extracted from the `originalError` property for internal logging purposes.
+ *
+ * @param {String} message The validation failure message
+ * @param {Error} originalError The thrown error from the predicate function
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#ES5_Custom_Error_Object
+ * @see https://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript
  */
 function ValidationError(message, originalError) {
   var instance = new Error(message);
@@ -70,7 +74,7 @@ const Validator = (x, errs = [], options = {}) => {
           break;
         default:
           throw new TypeError(
-            `Validator.assertWhen() expects first argument to be boolean or funciton. ${typeof condition} given.`
+            `Validator.assertWhen() expects first argument to be boolean or function. ${typeof condition} given.`
           );
       }
 

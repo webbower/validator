@@ -69,7 +69,7 @@ assertWhen: ((Boolean | a -> Boolean), a -> Boolean, String) => Validator<a>
 // The value from the username field of a login form that can accept a username or email address
 Validator(username)
     .assert(isString, 'a string is expected')
-    // Only validate the usernames's domain if an email address is submitted
+    // Only validate the username's domain if an email address is submitted
     .assertWhen(x => x.includes('@'), isDomainEmail('mydomain.com'), 'an email username must be in mydomain.com')
     .hasFailures();
 
@@ -202,6 +202,6 @@ A custom `Error` type used internally in this utility. There may be times where 
 
 - Make it so `ValidationError` doesn't require any ES6 polyfills (`Object.setPrototypeOf()`).
 - Support Node.js environment.
-- Validating a whole `<form>`.
-- Validate top level keys of an object.
+- Validating a whole `<form>` (separate package with this as a dependency).
+- Validate top level keys of an object (separate package with this as a dependency).
 - Assertion bundles: reusable validation function + failure message bundle.
