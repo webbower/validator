@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 - `Validator#hasErrors()` method to check for assertions that threw errors.
 - `Validator.isValidator()` static function to test if an instance is a `Validator` with tests.
 - `Validator#[Symbol.toStringTag]` support for calls to `Object.prototype.toString.call(Validator(...))`.
+- MIT `LICENSE` file
 
 ### Changed
 - Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`.
