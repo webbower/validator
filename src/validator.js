@@ -103,6 +103,9 @@ const ValidatorInternal = (x, errs = [], options = {}) => {
       return `Validator(${JSON.stringify(x)}, [${stringifyFailures(errs)}])`;
     },
     [instanceSymbol]: true,
+    get [Symbol.toStringTag]() {
+      return 'Validator';
+    },
   };
 };
 

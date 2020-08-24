@@ -288,6 +288,22 @@ describe('Validator#getErrors()', async assert => {
   });
 });
 
+describe('Validator#toStringTag', async assert => {
+  assert({
+    given: 'a Validator instance for `Object.prototype.toString.call()',
+    should: 'should return the expected output',
+    actual: Object.prototype.toString.call(Validator(1)),
+    expected: '[object Validator]',
+  });
+
+  assert({
+    given: 'an optional Validator instance for `Object.prototype.toString.call()',
+    should: 'should return the expected output',
+    actual: Object.prototype.toString.call(Validator.Optional(1)),
+    expected: '[object Validator]',
+  });
+});
+
 describe('Validator assertion tests', async assert => {
   assert({
     given: 'a passing assertion and a skipped conditional assertion',
