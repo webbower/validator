@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
 ## [Unreleased]
+
+## [0.2.0] - 2020-08-23
 ### Added
 - `Validator#assertWhen(condition, test, failureMessage)` to only run an assertion conditionally.
 - `Validator.Optional()` to create a `Validator` that will pass all assertions for nil (`null` or `undefined`) values.
@@ -18,6 +20,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 ### Changed
 - Replaced `tape` with `riteway` for testing and updated testing NPM commands to use `chokidar` instead of `watch`.
 - Changed naming of private and public APIs for better debugging and stack trace reporting.
+- Rename package to `@webbower/validator`.
 
 ## [0.1.0] - 2020-04-16
 ### Added
@@ -36,4 +39,5 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 <!-- Versions -->
 [Unreleased]: https://github.com/webbower/validator/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/webbower/validator/compare/v0.1.0..v0.2.0
 [0.1.0]: https://github.com/webbower/validator/releases/v0.1.0

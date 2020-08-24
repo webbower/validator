@@ -1,6 +1,6 @@
 {
-  "name": "validator",
-  "version": "0.1.0",
+  "name": "@webbower/validator",
+  "version": "0.2.0",
   "description": "Simple data validation with support for aggregating multiple validation failure messages",
   "main": "index.js",
   "module": "src/validator.js",
