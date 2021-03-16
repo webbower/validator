@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][Keep a Changelog] and this project adheres to [Semantic Versioning][Semantic Versioning].
 
 ## [Unreleased]
+### Added
+- Bound Validators: `Validator.withAssert()` and `Validator.withAssertWhen()`
 
 ## [0.2.0] - 2020-08-23
 ### Added
