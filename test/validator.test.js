@@ -21,6 +21,8 @@ const convertFailuresAndErrorsForTesting = failure => {
 };
 
 const isString = x => typeof x === 'string';
+const isEmailFormat = x => /[a-zA-Z0-9._-]+@[a-zA-Z0-9_-]+\.[a-z]+/.test(x);
+const isGmailAddress = x => x.split('@')[1] === 'gmail.com';
 const isNumber = x => typeof x === 'number';
 const isFooish = x => ['foobar', 'foobaz'].includes(x);
 
@@ -45,7 +47,7 @@ describe('Validator.Optional()', async assert => {
     given: 'the public API function',
     should: 'be have the correct function name',
     actual: Validator.Optional.name,
-    expected: 'Validator.Optional',
+    expected: 'OptionalValidator',
   });
 
   assert({
@@ -389,4 +391,154 @@ describe('Validator assertion tests', async assert => {
     actual: Validator.Optional(1).assertWhen(true, isString, 'a string is expected').hasFailures(),
     expected: true,
   });
+});
+
+describe('Validator.withAssert()', async assert => {
+  assert({
+    given: 'an assertion',
+    should: 'return a custom Validator',
+    actual: typeof Validator.withAssert(isString, 'a string is expected'),
+    expected: 'function',
+  });
+
+  {
+    const StringValidator = Validator.withAssert(isString, 'a string is expected');
+    assert({
+      given: 'an assertion and then a valid value',
+      should: 'pass',
+      actual: StringValidator('foo').hasErrors(),
+      expected: false,
+    });
+
+    assert({
+      given: 'an assertion and then an invalid value',
+      should: 'fail',
+      actual: [StringValidator(1).hasFailures(), StringValidator(1).getFailures()],
+      expected: [true, ['a string is expected']],
+    });
+
+    const EmailValidator = StringValidator.withAssert(isEmailFormat, 'a valid email is expected');
+    assert({
+      given: 'adding a second bound assertion to a custom validator and then a valid value',
+      should: 'pass',
+      actual: EmailValidator('foo@bar.com').hasErrors(),
+      expected: false,
+    });
+
+    assert({
+      given:
+        'adding a second bound assertion to a custom validator and then an invalid value that fails each',
+      should: 'fail with each failure message',
+      actual: EmailValidator(1).getFailures(),
+      expected: ['a string is expected', 'a valid email is expected'],
+    });
+
+    const GmailEmailValidator = EmailValidator.withAssert(isGmailAddress, 'must be gmail.com domain');
+    assert({
+      given: 'a third bound assertion with a value that fails all validations',
+      should: 'fail with all error messages',
+      actual: GmailEmailValidator(1).getFailures(),
+      expected: ['a string is expected', 'a valid email is expected', 'must be gmail.com domain'],
+    });
+
+    assert({
+      given: 'a third bound assertion with a value that passes all validations',
+      should: 'pass',
+      actual: GmailEmailValidator('bob@gmail.com').getFailures(),
+      expected: [],
+    });
+  }
+
+  assert({
+    given: 'the equivalent bound and manual validator assertions',
+    should: 'provide the same result',
+    actual: Validator(1).assert(isString, 'must be a string').assert(isEmailFormat, 'must be an email address').getFailures(),
+    expected: ((Validator.withAssert(isString, 'must be a string')).withAssert(isEmailFormat, 'must be an email address'))(1).getFailures(),
+});
+});
+
+describe('Validator.withAssertWhen()', async assert => {
+  assert({
+    given: 'an assertion to always apply signaled by a boolean literal',
+    should: 'return a custom Validator',
+    actual: typeof Validator.withAssertWhen(true, isNumber, 'a number is expected'),
+    expected: 'function',
+  });
+
+  assert({
+    given: 'an assertion to always run signaled by a function',
+    should: 'return a Validator object',
+    actual: typeof Validator(1).assertWhen(x => x === 1, isNumber, 'a number is expected').assert,
+    expected: 'function',
+  });
+
+  [undefined, null, 1, 'foo', Symbol('foo'), [], {}].forEach(invalid => {
+    assert({
+      given: `an invalid data type for first argument (${getTypeof(invalid)})`,
+      should: 'throw',
+      actual: Try(() => Validator(1).assertWhen(invalid, isNumber, 'a number is expected')).name,
+      expected: 'TypeError',
+    });
+  });
+
+  assert({
+    given: 'an assertion',
+    should: 'return a new Validator factory',
+    actual: typeof Validator.withAssertWhen(isString, 'a string is expected') === 'function',
+    expected: true,
+  });
+
+  {
+    const NumberValidator = Validator.withAssertWhen(isNumber, x => x === 10, 'the number 10 is expected');
+    assert({
+      given:
+        'an assertion to always apply signaled by a boolean value and then a valid value that matches the condition',
+      should: 'pass',
+      actual: [NumberValidator(1).getFailures(), NumberValidator(10).getFailures()],
+      expected: [['the number 10 is expected'], []],
+    });
+  }
+
+  {
+    const StringValidator = Validator.withAssert(isString, 'a string is expected');
+    const EmailValidator = StringValidator.withAssertWhen(isGmailAddress, isEmailFormat, 'a valid email is expected');
+    assert({
+      given: 'adding a second bound assertion to a custom validator and then a valid value',
+      should: 'pass',
+      actual: [
+        EmailValidator('foo@gmail.com').hasFailures(),
+        EmailValidator('foo@gmail.com').getFailures(),
+      ],
+      expected: [false, []],
+    });
+  }
+
+  {
+    // Create a Bound Validator for a credit card number that supports the different card provider formats
+    const CreditCardNumberValidator = Validator
+      .withAssert(isString, 'must be a string')
+      .withAssertWhen(
+        x => x.startsWith('5'),
+        x => x.length === 16,
+        'Visa must be 16-digit number'
+      )
+      .withAssertWhen(
+        x => x.startsWith('3'),
+        x => x.length === 15,
+        'American Express must be 15-digit number'
+      );
+
+      assert({
+        given: 'bound conditional assertions that are mutually exclusive',
+        should: 'only report the failed assertion that matches the condition',
+        actual: [
+          CreditCardNumberValidator('555555555555444').getFailures(),
+          CreditCardNumberValidator('3782822463100053').getFailures(),
+        ],
+        expected: [
+          ['Visa must be 16-digit number'],
+          ['American Express must be 15-digit number'],
+        ],
+      });
+    }
 });

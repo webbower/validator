@@ -8,8 +8,6 @@ const stringifyFailures = (errors = []) =>
     .map(e => (e instanceof Error ? `${e.name}(${JSON.stringify(e.message)})` : JSON.stringify(e)))
     .join(', ');
 
-const nameFn = (name, fn) => Object.defineProperty(fn, 'name', { value: name });
-
 /**
  * ValidationError - a custom Error type
  *
@@ -51,9 +49,9 @@ if (Object.setPrototypeOf) {
 }
 
 // Private internal implementation
-const ValidatorInternal = (x, errs = [], options = {}) => {
+const ValidatorFactory = (x, errs = [], options = {}) => {
   const { optional = false } = options;
-  const self = () => ValidatorInternal(x, errs, options);
+  const self = () => ValidatorFactory(x, errs, options);
 
   return {
     assert(test, errorMsg) {
@@ -62,9 +60,9 @@ const ValidatorInternal = (x, errs = [], options = {}) => {
       }
 
       try {
-        return test(x) ? self() : ValidatorInternal(x, errs.concat(errorMsg));
+        return test(x) ? self() : ValidatorFactory(x, errs.concat(errorMsg));
       } catch (e) {
-        return ValidatorInternal(x, errs.concat(new ValidationError(errorMsg, e)));
+        return ValidatorFactory(x, errs.concat(new ValidationError(errorMsg, e)));
       }
     },
     assertWhen(condition, test, errorMsg) {
@@ -110,13 +108,45 @@ const ValidatorInternal = (x, errs = [], options = {}) => {
 };
 
 // Public API
-const Validator = x => ValidatorInternal(x);
+const Validator = x => ValidatorFactory(x);
 
-Validator.Optional = nameFn('Validator.Optional', x =>
-  ValidatorInternal(x, undefined, { optional: true })
-);
+const createBoundValidator = ({ baseValidator = Validator, boundAssertion = [] } = {}) => {
+  const [boundTest, boundFailureMessage, boundCondition] = boundAssertion;
 
-Validator.isValidator = nameFn('isValidator', x => x != null && x[instanceSymbol] === true);
+  const BoundValidator = x => {
+    if (boundCondition) {
+      return baseValidator(x).assertWhen(boundCondition, boundTest, boundFailureMessage);
+    }
+
+    return baseValidator(x).assert(boundTest, boundFailureMessage);
+  };
+
+  Object.assign(BoundValidator, {
+    withAssert(test, errorMsg) {
+      return createBoundValidator({ baseValidator: BoundValidator, boundAssertion: [test, errorMsg] });
+    },
+    withAssertWhen(condition, test, errorMsg) {
+      return createBoundValidator({ baseValidator: BoundValidator, boundAssertion: [test, errorMsg, condition] });
+    },
+  });
+
+  return BoundValidator;
+}
+
+Object.assign(Validator, {
+  Optional: function OptionalValidator(x) {
+    return ValidatorFactory(x, undefined, { optional: true });
+  },
+  isValidator(x) {
+    return x != null && x[instanceSymbol] === true;
+  },
+  withAssert(test, errorMsg) {
+    return createBoundValidator({ boundAssertion: [test, errorMsg] });
+  },
+  withAssertWhen(condition, test, errorMsg) {
+    return createBoundValidator({ boundAssertion: [test, errorMsg, condition] });
+  },
+});
 
 // Export a wrapper that only exposes the unary signature public API
 export default Validator;

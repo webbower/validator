@@ -6,6 +6,37 @@ Many validation libraries I've used (especially for HTML forms) bake the validat
 
 The API for this utility was inspired by some functional programming (FP) concepts and libraries, most notably, the [FolkTale `Validation` utility](https://folktale.origamitower.com/api/v2.3.0/en/folktale.validation.html). `Validation` is written as an applicative functor which, while great if your goal is to adhere to pure functional patterns, is a bit obtuse to use for projects that aren't heavily using other FP libraries and patterns. This utility provides the same benefits without the overhead of FP types ported to JS.
 
+## Creating reusable Validators
+
+In many cases, you'll want to create reusable validation. For example, you may have multiple forms in your app that each have an email field. You have a few choices:
+
+- Duplicate `Validator(emailFieldValue).assert(isString, stringErrorMessage).assert(isEmailFormat, emailFormatErrorMessage)` for each form. This is not ideal because it makes maintenance more painful.
+- Create a reusable utility function around the above code snippet and use that everywhere. This is not a bad option.
+
+`Validator` provides a built-in mechanism for reusability. You can bind `.assert()` and `.assertWhen()` calls to create new Validators (called a Bound Validator), which can continue have assertions bound to them. Think of it like recursive currying. Each time you bind an assertion, you create a new Validator that applies that assertion upon giving it a value.
+
+```js
+const StringValidator = Validator.withAssert(isString, 'must be a string');
+const EmailValidator = StringValidator.withAssert(isEmailFormat, 'must be an email address');
+// Also Validator.withAssertWhen(condition, predicate, validation message)
+EmailValidator('jane@gmail.com')
+    .getFailures(); // []
+
+EmailValidator('jane@gmail.com')
+    .assert(isEmailDomain('example.com'), 'must be from the example.com domain')
+    .getFailures(); // ['must be from the example.com domain']
+```
+
+The following code is functionally equivalent:
+
+```js
+Validator('jane@example.com').assert(isString, 'must be a string').assert(isEmailFormat, 'must be an email address');
+// ~=
+(Validator.withAssert(isString, 'must be a string'))('jane@example.com').assert(isEmailFormat, 'must be an email address');
+// ~=
+((Validator.withAssert(isString, 'must be a string')).withAssert(isEmailFormat, 'must be an email address'))('jane@example.com');
+```
+
 ## Support
 
 `Validator` requires ES6 syntax transpilation and polyfills for `Symbol()` and `Object.setPrototypeOf()` if you need to support IE11. Proper IE11 support and Node.js support is planned.
@@ -192,6 +223,8 @@ Validator.Optional('foo')
     .hasFailures(); // true
 ```
 
+**NOTE:** `.Optional()` is only available on the base `Validator` exported from the package, not on Bound Validators.
+
 ### `Validator.isValidator(value)`
 
 Test whether a value is an instance of `Validator`.
@@ -202,6 +235,50 @@ Validator.isValidator: a -> Boolean
 Validator.isValidator(Validator(1)); // true
 Validator.isValidator(Validator.Optional(1)); // true
 Validator.isValidator(Validator(1).assert(isString)); // true
+```
+
+**NOTE:** `.isValidator()` is only available on the base `Validator` exported from the package, not on Bound Validators.
+
+### `Validator.withAssert(predicate, failureMessage)`
+
+Bind an assertion to the Validator, creating a new Validator that will apply the assertion upon receiving a value. These bound Validators can have have further assertions bound to them or have assertions called on them as normal, creating a flexible means of sharing centralized Validator logic anywhere in your codebase. Each time you bind a new assertion, it creates a brand new Validator, leaving the previous one as-is.
+
+```js
+Validator.withAssert: (a -> Boolean, String) -> Validator
+
+// Create a very base level bound Validator
+const StringValidator = Validator.withAssert(isString, 'must be a string');
+StringValidator('foo').getFailures(); // []
+StringValidator(1).getFailures(); // ['must be a string']
+
+// Create a validator for email addresses that builds on the StringValidator without modifying it
+const EmailValidator = StringValidator.withAssert(isEmailFormat, 'must be an email address');
+EmailValidator('jane@gmail.com').getFailures(); // []
+EmailValidator('jane').getFailures(); // ['must be an email address']
+EmailValidator(1).getFailures(); // ['must be a string', 'must be an email address']
+
+// Apply a one-off assertion on the EmailValidator for this special case
+EmailValidator('jane@gmail.com')
+    .assert(isEmailDomain('example.com'), 'must be from the example.com domain')
+    .getFailures(); // ['must be from the example.com domain']
+```
+
+```js
+Validator.withAssertWhen: (((Boolean | a -> Boolean), a -> Boolean, String) -> Validator
+
+// Create a very base level bound Validator
+const StringValidator = Validator.withAssert(isString, 'must be a string');
+StringValidator('foo').getFailures(); // []
+StringValidator(1).getFailures(); // ['must be a string']
+
+// Create a Bound Validator for a credit card number that supports the different card provider formats
+const CreditCardNumberValidator = StringValidator
+  .withAssertWhen(x => x.startsWith('5') || x.startsWith('4'), x => x.length === 16, 'Visa or MasterCard must be 16-digit number')
+  .withAssertWhen(x => x.startsWith('3'), x => x.length === 15, 'American Express must be 15-digit number');
+
+CreditCardNumberValidator(1).getFailures(); // ['must be a string']
+CreditCardNumberValidator('555555555555444').getFailures(); // ['Visa or MasterCard must be 16-digit number']
+CreditCardNumberValidator('3782822463100053').getFailures(); // ['American Express must be 15-digit number']
 ```
 
 ### `ValidationError`
@@ -215,4 +292,3 @@ A custom `Error` type used internally in this utility. There may be times where 
 - Support IE11.
 - Validating a whole `<form>` (separate package with this as a dependency).
 - Validate top level keys of an object (separate package with this as a dependency).
-- Assertion bundles: reusable validation function + failure message bundle.
